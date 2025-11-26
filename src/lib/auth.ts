@@ -4,6 +4,7 @@ import connectdb from "./dbconnection";
 import User from "@/model/user.model";
 import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
+import type { GoogleProfile } from "next-auth/providers/google"; // added
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -51,18 +52,42 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     // signin using google(only works for google)
     // this signIn used for google etc not credentials(email,pass) bcz we signing user above using credentials now for google we need to take data when clicked on google and create the user if he doesnot exists
-    async signIn({ account, user }) {
-      if (account?.provider == "google") {
-        await connectdb();
-        let exituser = await User.findOne({ email: user?.email });
-        if (!exituser) {
-          exituser = await User.create({ name: user.name, email: user?.email });
-        }
-        user.id = exituser._id as string;
-      }
-      return true;
-    },
+   async signIn({ account, user, profile }) {
+  if (account?.provider === "google") {
+    await connectdb();
 
+    const googleProfile = profile as GoogleProfile;
+    const googleImage = googleProfile?.picture;
+
+    let exituser = await User.findOne({ email: user?.email });
+
+    if (!exituser) {
+      exituser = await User.create({
+        name: user.name,
+        email: user?.email,
+        image: googleImage,
+      });
+    } else {
+      // typed update object instead of `any`
+      const updatedFields: { name?: string; image?: string } = {};
+
+      if (googleImage && exituser.image !== googleImage) {
+        updatedFields.image = googleImage;
+      }
+      if (user?.name && exituser.name !== user.name) {
+        updatedFields.name = user.name;
+      }
+
+      if (Object.keys(updatedFields).length) {
+        await User.findByIdAndUpdate(exituser._id, { $set: updatedFields });
+        exituser = await User.findById(exituser._id);
+      }
+    }
+
+    user.id = exituser._id.toString();
+  }
+  return true;
+},
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

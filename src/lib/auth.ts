@@ -56,7 +56,7 @@ const authOptions: NextAuthOptions = {
         await connectdb();
         let exituser = await User.findOne({ email: user?.email });
         if (!exituser) {
-          exituser = await User.create({ name: user.name, email: user?.email });
+          exituser = await User.create({ name: user.name, email: user?.email, image: user?.image });
         }
         user.id = exituser._id as string;
       }

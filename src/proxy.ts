@@ -12,7 +12,7 @@ export async function proxy(req:NextRequest){
         return NextResponse.next()
     }
 
-    const token=await getToken({req,secret:process.env.SECRET_KEY="harish123"})
+    const token=await getToken({req,secret:process.env.SECRET_KEY})
     if(!token){
         const loginUrl=new URL("/login",req.url)
         loginUrl.searchParams.set("callbackUrl",req.url)

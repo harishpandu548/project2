@@ -5,6 +5,10 @@ import Image from "next/image";
 import { CgProfile } from "react-icons/cg";
 import axios from "axios";
 import { userDataContext } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
+import { FiArrowLeft } from "react-icons/fi";
+import { motion } from "framer-motion";
+
 
 function Page() {
   const data=useContext(userDataContext)
@@ -13,6 +17,8 @@ function Page() {
   const [backendImage, setBackendImage] = useState<File | undefined>(undefined);
   const imageInput = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
 
 useEffect(() => {
   if (data?.user) {
@@ -48,7 +54,18 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white px-4 ">
-      <div className="w-full max-w-md border-2 border-white rounded-2xl p-8 shadow-lg">
+<div className="relative w-full max-w-md border-2 border-white rounded-2xl p-8 shadow-lg">
+        <motion.button
+  whileHover={{ scale: 1.1 }}
+  whileTap={{ scale: 0.9 }}
+  onClick={() => router.push("/")}
+  className="absolute top-6 left-6 w-10 h-10 rounded-full 
+             bg-white text-black flex items-center justify-center
+             shadow-lg hover:bg-gray-200 transition"
+>
+  <FiArrowLeft size={20} />
+</motion.button>
+
         <h1 className="text-2xl font-semibold text-center mb-2">Edit Profile</h1>
         <form
           className="space-y-2 flex flex-col w-full items-center"

@@ -64,12 +64,14 @@ const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user }) {
+      //runs only at the time of login
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.image = user.image;
         return token;
       }
+      //runs for every page request or every api call
       if (!user && token?.id) {
         try {
           await connectdb();
